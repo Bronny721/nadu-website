@@ -1,0 +1,154 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* 確保網站居中 */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* 添加一個全局wrapper使整個網站居中 */
+.site-wrapper {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #f9f5f1;
+}
+
+@layer base {
+  :root {
+    --background: 30 30% 98%;
+    --foreground: 28 10% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 28 10% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 28 10% 10%;
+    --primary: 25 60% 40%;
+    --primary-foreground: 25 30% 95%;
+    --secondary: 25 30% 95%;
+    --secondary-foreground: 25 60% 40%;
+    --muted: 25 20% 92%;
+    --muted-foreground: 28 5% 50%;
+    --accent: 25 30% 90%;
+    --accent-foreground: 25 60% 40%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 25 20% 85%;
+    --input: 25 20% 85%;
+    --ring: 25 60% 40%;
+    --chart-1: 25 76% 61%;
+    --chart-2: 25 58% 39%;
+    --chart-3: 25 37% 24%;
+    --chart-4: 25 74% 66%;
+    --chart-5: 25 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 25 30% 95%;
+    --sidebar-foreground: 25 5% 30%;
+    --sidebar-primary: 25 60% 40%;
+    --sidebar-primary-foreground: 25 30% 95%;
+    --sidebar-accent: 25 30% 90%;
+    --sidebar-accent-foreground: 25 60% 40%;
+    --sidebar-border: 25 20% 85%;
+    --sidebar-ring: 25 70% 50%;
+  }
+  .dark {
+    --background: 25 20% 10%;
+    --foreground: 25 10% 95%;
+    --card: 25 20% 10%;
+    --card-foreground: 25 10% 95%;
+    --popover: 25 20% 10%;
+    --popover-foreground: 25 10% 95%;
+    --primary: 25 40% 60%;
+    --primary-foreground: 25 10% 15%;
+    --secondary: 25 15% 20%;
+    --secondary-foreground: 25 10% 95%;
+    --muted: 25 15% 20%;
+    --muted-foreground: 25 10% 65%;
+    --accent: 25 15% 20%;
+    --accent-foreground: 25 10% 95%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 25 15% 25%;
+    --input: 25 15% 25%;
+    --ring: 25 30% 70%;
+    --chart-1: 25 70% 50%;
+    --chart-2: 25 60% 45%;
+    --chart-3: 25 80% 55%;
+    --chart-4: 25 65% 60%;
+    --chart-5: 25 75% 55%;
+    --sidebar-background: 25 20% 15%;
+    --sidebar-foreground: 25 10% 90%;
+    --sidebar-primary: 25 40% 60%;
+    --sidebar-primary-foreground: 25 10% 95%;
+    --sidebar-accent: 25 15% 25%;
+    --sidebar-accent-foreground: 25 10% 90%;
+    --sidebar-border: 25 15% 25%;
+    --sidebar-ring: 25 70% 50%;
+  }
+}
+
+/* 咖啡色系漸變按鈕 */
+.btn-coffee {
+  background: linear-gradient(to right, #8a5a44, #c3a995);
+  color: white;
+  transition: all 0.3s ease;
+}
+
+.btn-coffee:hover {
+  background: linear-gradient(to right, #6d4836, #a38979);
+  transform: translateY(-2px);
+}
+
+/* 咖啡色系邊框 */
+.border-coffee {
+  border-color: #8a5a44;
+}
+
+/* 咖啡色系背景 */
+.bg-coffee-light {
+  background-color: #f9f5f1;
+}
+
+.bg-coffee-medium {
+  background-color: #e8d9cf;
+}
+
+.bg-coffee-dark {
+  background-color: #8a5a44;
+}
+
+/* 咖啡色系文字 */
+.text-coffee {
+  color: #8a5a44;
+}
+
+.text-coffee-light {
+  color: #c3a995;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
