@@ -7,15 +7,25 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { useWishlist } from "@/lib/context/wishlist-context"
 import { useCart } from "@/lib/context/cart-context"
-import { featuredProducts } from "@/lib/data"
 import { formatPrice } from "@/lib/utils"
+import { useEffect, useState } from "react"
 
 export default function FavoritesPage() {
   const { items: wishlistItems, removeFromWishlist } = useWishlist()
   const { addItem } = useCart()
   const { toast } = useToast()
+  const [products, setProducts] = useState<any[]>([])
 
-  const wishlistProducts = featuredProducts.filter((product) => wishlistItems.includes(product.id))
+  useEffect(() => {
+    fetch("/api/admin/products")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setProducts(data)
+        else if (Array.isArray(data.products)) setProducts(data.products)
+      })
+  }, [])
+
+  const wishlistProducts = products.filter((product) => wishlistItems.includes(product.id))
 
   return (
     <div className="container py-8">

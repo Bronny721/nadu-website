@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int         @id @default(autoincrement())
+  email      String      @unique
+  password   String
+  name       String
+  phone      String
+  role       String      @default("user")
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
+  orders     UserOrder[]
+}
+
+model Product {
+  id         Int      @id @default(autoincrement())
+  name       String
+  category   String?
+  price      Float
+  stock      Int?
+  isNew      Boolean  @default(false)
+  image      String?
+  images     Json?
+  created_at DateTime @default(now())
+}
+
+model Order {
+  id             Int      @id @default(autoincrement())
+  customer_name  String?
+  customer_id    String?
+  date           String?
+  total          Float?
+  status         String?
+  trackingNumber String?
+  created_at     DateTime @default(now())
+}
+
+model UserOrder {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  items        String? // 或用關聯表
+  shippingInfo String? // 或用關聯表
+  total        Float?
+  status       String?
+  created_at   DateTime @default(now())
+}

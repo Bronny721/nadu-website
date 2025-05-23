@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import Link from "next/link"
 import { ArrowLeft, Minus, Plus, ShoppingCart, Heart, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -9,16 +9,16 @@ import { Separator } from "@/components/ui/separator"
 import { useToast } from "@/hooks/use-toast"
 import { useCart } from "@/lib/context/cart-context"
 import { useWishlist } from "@/lib/context/wishlist-context"
-import { getProductBySlug, getRelatedProducts } from "@/lib/data"
 import ProductCard from "@/components/product-card"
 import { 滿額贈品橫幅 } from "@/components/滿額贈品-橫幅"
 import { SiteHeader } from "@/components/site-header"
 import { ReviewForm } from "@/components/review-form"
+import React from "react"
+import Image from "next/image"
+import { Carousel } from "@/components/ui/carousel"
 
 interface ProductPageProps {
-  params: {
-    slug: string
-  }
+  params: Promise<{ slug: string }>
 }
 
 interface Review {
@@ -29,33 +29,35 @@ interface Review {
 }
 
 export default function ProductPage({ params }: ProductPageProps) {
-  const product = getProductBySlug(params.slug)
-  const relatedProducts = getRelatedProducts(params.slug)
+  const { slug } = React.use(params as Promise<{ slug: string }>)
+  const [product, setProduct] = useState<any>(null)
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([])
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
-  const [reviews, setReviews] = useState<Review[]>([
-    {
-      name: "王小明",
-      rating: 5,
-      date: "2023-10-15",
-      comment: "非常精美的耳環，做工精細，很滿意這次的購買！",
-    },
-    {
-      name: "李小花",
-      rating: 4,
-      date: "2023-09-28",
-      comment: "商品質量很好，但配送時間比預期的長了一些。",
-    },
-    {
-      name: "張大山",
-      rating: 5,
-      date: "2023-09-10",
-      comment: "包裝非常精美，很適合送禮，朋友收到非常喜歡。",
-    },
-  ])
+  const [reviews, setReviews] = useState<Review[]>([])
   const { addItem } = useCart()
   const { isInWishlist, toggleWishlist } = useWishlist()
   const { toast } = useToast()
+
+  useEffect(() => {
+    // 取得單一商品資料
+    fetch(`/api/admin/products/${slug}`)
+      .then(res => {
+        if (!res.ok) {
+          // 404 或其他錯誤
+          setProduct(null)
+          return null
+        }
+        return res.json()
+      })
+      .then(data => {
+        if (data) setProduct(data)
+      })
+    // 取得相關商品
+    fetch(`/api/admin/products?relatedTo=${slug}`)
+      .then(res => res.json())
+      .then(setRelatedProducts)
+  }, [slug])
 
   // 計算平均評分和評論數量
   const reviewStats = useMemo(() => {
@@ -113,28 +115,17 @@ export default function ProductPage({ params }: ProductPageProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* Product Images */}
           <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-lg border">
-              <img
-                src={productImages[selectedImage] || "/placeholder.svg"}
-                alt={product.name}
-                className="object-cover w-full h-full"
-              />
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {productImages.map((image, index) => (
-                <div
-                  key={index}
-                  className={`aspect-square overflow-hidden rounded-md border cursor-pointer ${selectedImage === index ? "ring-2 ring-primary" : ""}`}
-                  onClick={() => setSelectedImage(index)}
-                >
-                  <img
-                    src={image || "/placeholder.svg"}
-                    alt={`${product.name} 圖片 ${index + 1}`}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-              ))}
-            </div>
+            {product.images?.length > 0 ? (
+              <Carousel>
+                {product.images.map((img: string, idx: number) => (
+                  <img key={idx} src={img} alt={product.name} />
+                ))}
+              </Carousel>
+            ) : (
+              <div className="w-full h-64 bg-gray-100 flex items-center justify-center text-gray-400">
+                尚無圖片
+              </div>
+            )}
           </div>
 
           {/* Product Info */}
@@ -348,7 +339,7 @@ export default function ProductPage({ params }: ProductPageProps) {
           <div className="mt-12 py-4">
             <h2 className="text-xl font-medium mb-4">你可能也會喜歡這些商品</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {relatedProducts.map((relatedProduct) => (
+              {relatedProducts.map((relatedProduct: any) => (
                 <ProductCard key={relatedProduct.id} product={relatedProduct} showAddToCart={true} />
               ))}
             </div>

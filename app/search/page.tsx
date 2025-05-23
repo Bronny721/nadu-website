@@ -17,16 +17,42 @@ import { SiteHeader } from "@/components/site-header"
 export default function SearchPage() {
   const searchParams = useSearchParams()
   const query = searchParams.get("q") || ""
+  const [allProducts, setAllProducts] = useState<any[]>([])
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 3000])
   const [sortBy, setSortBy] = useState("newest")
 
-  // 模擬搜索功能 - 現在返回空數組，等待實際商品數據
   useEffect(() => {
-    // 暫時返回空數組，等待實際商品數據
-    setSearchResults([])
-  }, [query, selectedCategories, priceRange, sortBy])
+    fetch("/api/admin/products")
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) setAllProducts(data)
+        else if (Array.isArray(data.products)) setAllProducts(data.products)
+      })
+  }, [])
+
+  useEffect(() => {
+    let filtered = allProducts
+    if (query) {
+      filtered = filtered.filter(p => p.name?.includes(query) || p.description?.includes(query))
+    }
+    if (selectedCategories.length > 0) {
+      filtered = filtered.filter(p => selectedCategories.includes(p.category))
+    }
+    filtered = filtered.filter(p => {
+      const price = Number(p.price) || 0
+      return price >= priceRange[0] && price <= priceRange[1]
+    })
+    if (sortBy === "price-asc") {
+      filtered = filtered.slice().sort((a, b) => Number(a.price) - Number(b.price))
+    } else if (sortBy === "price-desc") {
+      filtered = filtered.slice().sort((a, b) => Number(b.price) - Number(a.price))
+    } else if (sortBy === "newest") {
+      filtered = filtered.slice().sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    }
+    setSearchResults(filtered)
+  }, [query, selectedCategories, priceRange, sortBy, allProducts])
 
   const handleCategoryChange = (category: string) => {
     setSelectedCategories((prev) =>

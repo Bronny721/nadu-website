@@ -9,13 +9,14 @@ export interface User {
   name: string
   email: string
   avatar?: string
+  role: string 
 }
 
 interface AuthContextType {
   user: User | null
   isLoading: boolean
-  login: (email: string, password: string) => Promise<boolean>
-  register: (name: string, email: string, password: string) => Promise<boolean>
+  login: (email: string, password: string) => Promise<{ success: boolean, role?: string, message?: string }>
+  register: (name: string, email: string, password: string, phone: string) => Promise<boolean>
   logout: () => void
 }
 
@@ -35,47 +36,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const login = async (email: string, password: string) => {
-    // In a real app, this would be an API call
     setIsLoading(true)
-
     try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Mock login - in a real app, validate credentials with backend
-      if (email === "user@example.com" && password === "password") {
-        const user = {
-          id: "1",
-          name: "測試用戶",
-          email: "user@example.com",
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
+      const data = await res.json()
+      console.log("login response", data)
+      if (res.ok) {
+        localStorage.setItem("token", data.token)
+        // 等待 cookie 寫入
+        await new Promise(resolve => setTimeout(resolve, 200));
+        const meRes = await fetch("/api/auth/me", { credentials: "include" })
+        if (meRes.ok) {
+          const meData = await meRes.json()
+          setUser(meData.user)
         }
-        setUser(user)
-        localStorage.setItem("user", JSON.stringify(user))
-        return true
+        return { success: true, role: data.user.role }
       }
-      return false
+      return { success: false, message: data.message }
     } finally {
       setIsLoading(false)
     }
   }
 
-  const register = async (name: string, email: string, password: string) => {
-    // In a real app, this would be an API call
+  const register = async (name: string, email: string, password: string, phone: string) => {
     setIsLoading(true)
 
     try {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, phone }),
+      })
 
-      // Mock registration - in a real app, send data to backend
-      const user = {
-        id: "1",
-        name,
-        email,
+      if (!res.ok) {
+        throw new Error("註冊失敗")
       }
-      setUser(user)
-      localStorage.setItem("user", JSON.stringify(user))
-      return true
+
+      const data = await res.json()
+      return data.success
+    } catch (error) {
+      console.error("註冊錯誤:", error)
+      return false
     } finally {
       setIsLoading(false)
     }

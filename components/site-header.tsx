@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Heart, User, Menu, ShoppingBag, Instagram } from "lucide-react"
+import { Heart, User, Menu, ShoppingBag, Instagram, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { CartDropdown } from "@/components/cart-dropdown"
@@ -10,10 +10,19 @@ import { useWishlist } from "@/lib/context/wishlist-context"
 import { categories } from "@/lib/data"
 import { SearchInput } from "@/components/search-input"
 import { LineQRDialog } from "@/components/line-qr-dialog"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function SiteHeader() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const { items: wishlistItems } = useWishlist()
+
+  const isMerchant = user?.role === "merchant"
 
   return (
     <header className="border-b border-coffee/10 bg-white">
@@ -35,7 +44,11 @@ export function SiteHeader() {
                   首頁
                 </Link>
                 {categories.map((category) => (
-                  <Link key={category.id} href={`/category/${category.slug}`} className="text-lg text-coffee-light hover:text-coffee transition-colors">
+                  <Link
+                    key={category.id}
+                    href={`/category/${category.slug}`}
+                    className="text-lg text-coffee-light hover:text-coffee transition-colors"
+                  >
                     {category.name}
                   </Link>
                 ))}
@@ -51,6 +64,17 @@ export function SiteHeader() {
                     登入 / 註冊
                   </Link>
                 )}
+
+                {/* 店家後台連結 */}
+                {isMerchant && (
+                  <Link
+                    href="/admin/dashboard"
+                    className="text-lg text-coffee-light hover:text-coffee transition-colors"
+                  >
+                    店家後台
+                  </Link>
+                )}
+
                 <div className="pt-4 border-t border-coffee/20 mt-4">
                   <div className="grid gap-2">
                     <Link
@@ -101,7 +125,11 @@ export function SiteHeader() {
         </div>
         <div className="flex items-center gap-4">
           <Link href="/favorites">
-            <Button variant="ghost" size="icon" className="relative text-coffee hover:text-coffee-light hover:bg-coffee-light">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative text-coffee hover:text-coffee-light hover:bg-coffee-light"
+            >
               <Heart className="h-5 w-5" />
               {wishlistItems.length > 0 && (
                 <span className="absolute top-0 right-0 bg-coffee text-white rounded-full w-4 h-4 text-xs flex items-center justify-center">
@@ -112,19 +140,55 @@ export function SiteHeader() {
             </Button>
           </Link>
           <CartDropdown />
-          <Link href={user ? "/account" : "/login"}>
-            <Button variant="ghost" size="icon" className="text-coffee hover:text-coffee-light hover:bg-coffee-light">
-              <User className="h-5 w-5" />
-              <span className="sr-only">{user ? "帳戶" : "登入"}</span>
-            </Button>
-          </Link>
+
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-coffee hover:text-coffee-light hover:bg-coffee-light"
+                >
+                  <User className="h-5 w-5" />
+                  <span className="sr-only">用戶選單</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <div className="px-2 py-1.5 text-sm font-medium">{user.name}</div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/account">我的帳戶</Link>
+                </DropdownMenuItem>
+                {isMerchant && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/dashboard">
+                      <Settings className="mr-2 h-4 w-4" />
+                      店家後台
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={logout}>登出</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link href="/login">
+              <Button variant="ghost" size="icon" className="text-coffee hover:text-coffee-light hover:bg-coffee-light">
+                <User className="h-5 w-5" />
+                <span className="sr-only">登入</span>
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
       <nav className="container py-2 hidden lg:block border-t border-coffee/10">
         <ul className="flex gap-6 justify-center">
           {categories.map((category) => (
             <li key={category.id}>
-              <Link href={`/category/${category.slug}`} className="text-sm text-coffee-light hover:text-coffee transition-colors">
+              <Link
+                href={`/category/${category.slug}`}
+                className="text-sm text-coffee-light hover:text-coffee transition-colors"
+              >
                 {category.name}
               </Link>
             </li>

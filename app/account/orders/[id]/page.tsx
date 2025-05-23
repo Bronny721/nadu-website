@@ -8,41 +8,31 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/lib/context/auth-context"
 import { formatPrice } from "@/lib/utils"
+import { useState, useEffect } from "react"
 
-// 模擬訂單詳情數據
-const mockOrderDetails = {
-  id: "ORD-123456",
-  date: "2023-10-15",
-  status: "已完成",
-  total: 2350,
-  shipping: 150,
-  items: [
-    {
-      id: "p1",
-      name: "手工陶瓷花瓶",
-      price: 1200,
-      quantity: 1,
-      image: "/placeholder.svg?height=100&width=100&text=陶瓷花瓶",
-      variant: "白色",
-    },
-    {
-      id: "p3",
-      name: "手工木雕茶杯墊",
-      price: 450,
-      quantity: 2,
-      image: "/placeholder.svg?height=100&width=100&text=木雕茶杯墊",
-      variant: "四件套",
-    },
-  ],
+type Order = {
+  id: number
+  status: string
+  date: string
+  total: number
+  shipping: number
+  items: Array<{
+    id: number
+    name: string
+    image?: string
+    variant?: string
+    quantity: number
+    price: number
+  }>
   shippingAddress: {
-    name: "王小明",
-    address: "台北市信義區信義路五段7號",
-    city: "台北市",
-    postalCode: "110",
-    country: "台灣",
-    phone: "0912-345-678",
-  },
-  paymentMethod: "信用卡 (末四碼: 1234)",
+    name: string
+    address: string
+    city: string
+    postalCode: string
+    country: string
+    phone: string
+  }
+  paymentMethod: string
 }
 
 interface OrderDetailsPageProps {
@@ -54,14 +44,23 @@ interface OrderDetailsPageProps {
 export default function OrderDetailsPage({ params }: OrderDetailsPageProps) {
   const router = useRouter()
   const { user } = useAuth()
+  const [order, setOrder] = useState<Order | null>(null)
+  const [loading, setLoading] = useState(true)
 
   if (!user) {
     router.push("/login")
     return null
   }
 
-  // 在實際應用中，這裡會根據 params.id 從 API 獲取訂單詳情
-  const order = mockOrderDetails
+  useEffect(() => {
+    fetch(`/api/account/orders/${params.id}`)
+      .then(res => res.json())
+      .then(data => setOrder(data))
+      .finally(() => setLoading(false))
+  }, [params.id])
+
+  if (loading) return <div>載入中...</div>
+  if (!order) return <div>查無訂單資料</div>
 
   return (
     <div className="container py-8">

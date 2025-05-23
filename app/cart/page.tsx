@@ -7,11 +7,24 @@ import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import { useCart } from "@/lib/context/cart-context"
 import { formatPrice } from "@/lib/utils"
+import { useEffect, useState } from 'react'
 
 export default function CartPage() {
   const { items, updateQuantity, removeItem, totalPrice } = useCart()
   const shipping = 150
   const total = totalPrice + shipping
+  const [cart, setCart] = useState([])
+
+  useEffect(() => {
+    const cartData = localStorage.getItem('cart')
+    setCart(cartData ? JSON.parse(cartData) : [])
+  }, [])
+
+  function addToCart(product: any) {
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]')
+    cart.push(product)
+    localStorage.setItem('cart', JSON.stringify(cart))
+  }
 
   return (
     <div className="container py-8">

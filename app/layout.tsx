@@ -23,9 +23,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-TW">
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <div className="site-wrapper">
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <AuthProvider>
               <CartProvider>
                 <WishlistProvider>
@@ -34,7 +33,6 @@ export default function RootLayout({
                 </WishlistProvider>
               </CartProvider>
             </AuthProvider>
-          </div>
         </ThemeProvider>
       </body>
     </html>

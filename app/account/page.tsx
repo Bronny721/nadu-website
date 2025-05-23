@@ -6,14 +6,20 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/lib/context/auth-context"
+import React from "react"
 
 export default function AccountPage() {
   const router = useRouter()
   const { user, logout } = useAuth()
   const { toast } = useToast()
 
+  React.useEffect(() => {
+    if (!user) {
+      router.push("/login")
+    }
+  }, [user, router])
+
   if (!user) {
-    router.push("/login")
     return null
   }
 

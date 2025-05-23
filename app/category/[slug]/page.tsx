@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useParams } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { SiteHeader } from "@/components/site-header"
@@ -10,48 +11,25 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Product } from "@/lib/types"
 
-interface CategoryPageProps {
-  params: {
-    slug: string
-  }
-}
-
-export default function CategoryPage({ params }: CategoryPageProps) {
-  const [categoryProducts, setCategoryProducts] = useState<Product[]>([])
-  const [category, setCategory] = useState<any>(null)
+export default function CategoryPage() {
+  const params = useParams()
+  const slug = params?.slug as string
+  const [products, setProducts] = useState<any[]>([])
+  const [categoryName, setCategoryName] = useState<string>("")
   const [sortBy, setSortBy] = useState("newest")
 
   useEffect(() => {
-    // 查找當前分類
-    const currentCategory = categories.find((cat) => cat.slug === params.slug)
-    setCategory(currentCategory)
+    fetch("/api/admin/products")
+      .then(res => res.json())
+      .then(data => {
+        let allProducts = Array.isArray(data) ? data : data.products
+        const cat = categories.find(c => c.slug === slug)
+        setCategoryName(cat?.name || slug)
+        setProducts(allProducts.filter((p: any) => p.category === (cat?.name || slug)))
+      })
+  }, [slug])
 
-    // 從featuredProducts中過濾出該分類的商品
-    if (currentCategory) {
-      // 獲取指定分類的產品
-      const filteredProducts = featuredProducts.filter(
-        (product) => product.category === currentCategory.name
-      )
-
-      // 根據排序選項排序產品
-      let sortedProducts = [...filteredProducts]
-      
-      if (sortBy === "price-asc") {
-        sortedProducts.sort((a, b) => a.price - b.price)
-      } else if (sortBy === "price-desc") {
-        sortedProducts.sort((a, b) => b.price - a.price)
-      } else {
-        // 默認按最新排序 (id倒序)
-        sortedProducts.sort((a, b) => b.id.localeCompare(a.id))
-      }
-      
-      setCategoryProducts(sortedProducts)
-    } else {
-      setCategoryProducts([])
-    }
-  }, [params.slug, sortBy])
-
-  if (!category) {
+  if (!categoryName) {
     return (
       <div className="flex flex-col min-h-screen">
         <SiteHeader />
@@ -92,21 +70,21 @@ export default function CategoryPage({ params }: CategoryPageProps) {
         </div>
 
         <div className="mb-6">
-          <h1 className="text-2xl font-bold">{category.name}</h1>
+          <h1 className="text-2xl font-bold">{categoryName} 商品</h1>
           <Separator className="my-4" />
         </div>
 
-        {categoryProducts.length === 0 ? (
+        {products.length === 0 ? (
           <div className="text-center py-12">
             <h2 className="text-xl font-semibold mb-2">暫無商品</h2>
-            <p className="text-muted-foreground mb-6">此分類暫時沒有商品，請稍後再查看</p>
+            <p className="text-muted-foreground mb-6">我們正在更新商品，請稍後再查看</p>
             <Button asChild>
               <Link href="/">返回首頁</Link>
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {categoryProducts.map((product) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
