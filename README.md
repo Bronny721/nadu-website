@@ -131,11 +131,19 @@ pnpm install --legacy-peer-deps
 ```
 
 ### 2. 設定環境變數
-請在專案根目錄建立 `.env` 檔案，內容範例：
-```
+在專案根目錄建立一個名為 `.env` 的檔案，並填入以下基本配置：
+
+```env
 DATABASE_URL="file:./prisma/nadu.db"
-JWT_SECRET="your-secret-key"
+JWT_SECRET="請替換為一個強密鑰"
+NEXTAUTH_SECRET="請替換為一個用於 NextAuth 的密鑰"
+NEXTAUTH_URL="http://localhost:3000" # 或您的部署 URL
 ```
+
+*   `DATABASE_URL`: Prisma 用於連接資料庫的 URL，預設指向本地的 SQLite 檔案。
+*   `JWT_SECRET`: 用於簽署 JWT 的密鑰。
+*   `NEXTAUTH_SECRET`: NextAuth 用於加密的密鑰，開發環境可使用 `openssl rand -base64 32` 生成。
+*   `NEXTAUTH_URL`: 您的應用程式 URL，用於 NextAuth 的回調設定。
 
 ### 3. 資料庫遷移與 Prisma 操作
 
