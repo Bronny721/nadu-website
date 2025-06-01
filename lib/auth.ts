@@ -150,8 +150,10 @@ export const authOptions: NextAuthOptions = {
           password: credentials.password
         })
         if (result.success && result.user) {
+          console.log("authorize callback: 登入成功，回傳使用者物件:", result.user);
           return result.user
         }
+        console.log("authorize callback: 登入失敗", result.message);
         return null
       }
     })
@@ -160,11 +162,39 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt"
   },
   callbacks: {
-    async session({ session, token }) {
-      if (session.user && token && token.sub) {
-        (session.user as any).id = token.sub
+    async jwt({ token, user }) {
+      // user 參數只在使用者第一次登入時存在，且是從 authorize 回傳的物件
+      if (user) {
+        // 安全地檢查 user 物件是否存在且具有 role 屬性
+        if (user && 'role' in user && typeof (user as any).role === 'string') {
+           // NextAuth 的 token 類型可能不包含自定義屬性，需要做類型斷言
+           (token as any).id = (user as any).id;
+           (token as any).role = (user as any).role;
+        } else {
+           console.warn("jwt callback: user object is missing expected 'id' or 'role' property.");
+        }
       }
-      return session
+
+      // 確保無論是否是第一次登入，token 中都有 id 和 role (如果它們已經存在的話)
+      // 如果 token 中已經有 id，代表是後續的請求
+      if (!(token as any).id && token.sub) {
+          // Fallback: 如果 token 中沒有 id (可能在某些 NextAuth 版本或配置下)，使用 sub (通常是使用者 id 的字串形式)
+          (token as any).id = parseInt(token.sub);
+      }
+      // 如果 token 中沒有 role，但 user 在第一次登入時有提供，確保它被加入
+       if (!(token as any).role && user && 'role' in user && typeof (user as any).role === 'string') {
+           (token as any).role = (user as any).role;
+       }
+
+      return token;
+    },
+    async session({ session, token }) {
+      // 將 token 中的資訊賦予 session.user
+      if (session.user && token) {
+        (session.user as any).id = token.id; // 使用 token.id (從 jwt callback 添加)
+        (session.user as any).role = token.role; // 使用 token.role (從 jwt callback 添加)
+      }
+      return session;
     }
   },
   // 其他 next-auth 設定

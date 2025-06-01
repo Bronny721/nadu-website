@@ -78,6 +78,7 @@ export default function ProductPage({ params }: ProductPageProps) {
   const productImages = product.images || [product.image || ""]
 
   const handleAddToCart = () => {
+    console.log("點擊加入購物車，呼叫 addItem", { product, quantity });
     addItem(product, quantity)
     toast({
       title: "已加入購物車",
@@ -115,11 +116,17 @@ export default function ProductPage({ params }: ProductPageProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
           {/* Product Images */}
           <div className="space-y-4">
-            {product.images?.length > 0 ? (
+            {/* 判斷是否有圖片來源：優先使用 images 陣列，否則使用 image 欄位 */}
+            {product.images?.length > 0 || product.image ? (
               <Carousel>
-                {product.images.map((img: string, idx: number) => (
-                  <img key={idx} src={img} alt={product.name} />
-                ))}
+                {/* 如果有 images 陣列且不為空，就遍歷 images 陣列 */}
+                {product.images?.length > 0 ? (
+                  product.images.map((img: string, idx: number) => (
+                    <img key={idx} src={img} alt={product.name} className="w-full h-auto object-cover" />
+                  ))
+                ) : ( // 如果 images 陣列為空或不存在，但 image 欄位有值，就顯示 image 的圖片
+                  <img src={product.image} alt={product.name} className="w-full h-auto object-cover" />
+                )}
               </Carousel>
             ) : (
               <div className="w-full h-64 bg-gray-100 flex items-center justify-center text-gray-400">

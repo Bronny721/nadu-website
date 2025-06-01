@@ -91,7 +91,7 @@ export default function AdminOrdersPage() {
   const filteredOrders = orders.filter((order: any) => {
     // Filter by search query
     const matchesSearch =
-      order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      String(order.id).toLowerCase().includes(searchQuery.toLowerCase()) ||
       (order.customer?.name && order.customer.name.toLowerCase().includes(searchQuery.toLowerCase()))
 
     // Filter by status

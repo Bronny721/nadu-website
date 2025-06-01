@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/lib/context/auth-context"
 import { formatPrice } from "@/lib/utils"
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 
 type Order = {
   id: number
@@ -53,11 +53,12 @@ export default function OrderDetailsPage({ params }: OrderDetailsPageProps) {
   }
 
   useEffect(() => {
-    fetch(`/api/account/orders/${params.id}`)
+    const orderId = use(params).id;
+    fetch(`/api/account/orders/${orderId}`)
       .then(res => res.json())
       .then(data => setOrder(data))
       .finally(() => setLoading(false))
-  }, [params.id])
+  }, [params])
 
   if (loading) return <div>載入中...</div>
   if (!order) return <div>查無訂單資料</div>

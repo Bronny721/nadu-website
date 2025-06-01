@@ -138,31 +138,40 @@ export default function Home() {
             {/* 桌面版導航選項 */}
             <nav className="hidden md:flex items-center space-x-8">
               <Link
+                href="/search"
+                className="text-[#6B4F36] hover:text-[#BFA18A] transition-colors font-medium text-center"
+              >
+                所有商品<br/>
+              </Link>
+              <Link
+                href="/category/bag"
+                className="text-[#6B4F36] hover:text-[#BFA18A] transition-colors font-medium text-center"
+              >
+                包包<br/>
+              </Link>
+              <Link
+                href="/category/chain bracelet"
+                className="text-[#6B4F36] hover:text-[#BFA18A] transition-colors font-medium text-center"
+              >
+                手鍊<br/>
+              </Link>
+              <Link
+                href="/category/ring"
+                className="text-[#6B4F36] hover:text-[#BFA18A] transition-colors font-medium text-center"
+              >
+                戒指<br/>
+              </Link>
+              <Link
                 href="/category/earrings"
-                className="text-[#6B4F36] hover:text-[#BFA18A] transition-colors font-medium"
+                className="text-[#6B4F36] hover:text-[#BFA18A] transition-colors font-medium text-center"
               >
-                耳環
+                耳環<br/>
               </Link>
               <Link
-                href="/category/necklaces"
-                className="text-[#6B4F36] hover:text-[#BFA18A] transition-colors font-medium"
+                href="/category/necklace"
+                className="text-[#6B4F36] hover:text-[#BFA18A] transition-colors font-medium text-center"
               >
-                項鍊
-              </Link>
-              <Link
-                href="/category/rings"
-                className="text-[#6B4F36] hover:text-[#BFA18A] transition-colors font-medium"
-              >
-                戒指
-              </Link>
-              <Link
-                href="/category/bracelets"
-                className="text-[#6B4F36] hover:text-[#BFA18A] transition-colors font-medium"
-              >
-                手鍊
-              </Link>
-              <Link href="/new-arrivals" className="text-[#6B4F36] hover:text-[#BFA18A] transition-colors font-medium">
-                新品上市
+                項鍊<br/>
               </Link>
             </nav>
 
@@ -682,7 +691,7 @@ export default function Home() {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path
-                    d="M12 0C8.741 0 6.087 2.654 6.087 5.913c0 .261.213.474.474h10.878c.261 0 .474-.213.474-.474C17.913 2.654 15.259 0 12 0zm.113 1.425a4.318 4.318 0 014.252 3.51H7.847a4.318 4.318 0 014.266-3.51zM4.191 7.365C1.88 7.365 0 9.245 0 11.557v7.061c0 2.311 1.88 4.191 4.191 4.191h15.618c2.311 0 4.191-1.88 4.191-4.191v-7.061c0-2.311-1.88-4.191-4.191-4.191H4.191zm.474 1.422h14.67c1.527 0 2.77 1.242 2.77 2.77v7.061c0 1.527-1.242 2.77-2.77 2.77H4.665a2.774 2.774 0 01-2.77-2.77v-7.061c0-1.527 1.242-2.77 2.77-2.77zm3.309 2.196c-1.574 0-2.87 1.296-2.87 2.87s1.296 2.87 2.87 2.87c1.574 0 2.87-1.296 2.87-2.87s-1.296-2.87-2.87-2.87zm7.826 0c-1.574 0-2.87 1.296-2.87 2.87s1.296 2.87 2.87 2.87 2.87-1.296 2.87-2.87-1.296-2.87-2.87-2.87zm-7.826 1.422c.806 0 1.448.642 1.448 1.448 0 .806-.642 1.448-1.448 1.448a1.426 1.426 0 01-1.448-1.448c0-.806.642-1.448 1.448-1.448zm7.826 0c.806 0 1.448.642 1.448 1.448 0 .806-.642 1.448-1.448 1.448a1.426 1.426 0 01-1.448-1.448c0-.806.642-1.448 1.448-1.448z"
+                    d="M12 0C8.741 0 6.087 2.654 6.087 5.913c0 .261 .213 .474 h10.878c.261 0 .474-.213 .474-.474C17.913 2.654 15.259 0 12 0zm.113 1.425a4.318 4.318 0 014.252 3.51H7.847a4.318 4.318 0 014.266-3.51zM4.191 7.365C1.88 7.365 0 9.245 0 11.557v7.061c0 2.311 1.88 4.191 4.191 4.191h15.618c2.311 0 4.191-1.88 4.191-4.191v-7.061c0-2.311-1.88-4.191-4.191-4.191H4.191zm.474 1.422h14.67c1.527 0 2.77 1.242 2.77 2.77v7.061c0 1.527-1.242 2.77-2.77 2.77H4.665a2.774 2.774 0 01-2.77-2.77v-7.061c0-1.527 1.242-2.77 2.77-2.77zm3.309 2.196c-1.574 0-2.87 1.296-2.87 2.87s1.296 2.87 2.87 2.87c1.574 0 2.87-1.296 2.87-2.87s-1.296-2.87-2.87-2.87zm7.826 0c-1.574 0-2.87 1.296-2.87 2.87s1.296 2.87 2.87 2.87 2.87-1.296 2.87-2.87-1.296-2.87-2.87-2.87zm-7.826 1.422c.806 0 1.448.642 1.448 1.448 0 .806-.642 1.448-1.448 1.448a1.426 1.426 0 01-1.448-1.448c0-.806.642-1.448 1.448-1.448zm7.826 0c.806 0 1.448.642 1.448 1.448 0 .806-.642 1.448-1.448 1.448a1.426 1.426 0 01-1.448-1.448c0-.806.642-1.448 1.448-1.448z"
                     fill="currentColor"
                   />
                 </svg>

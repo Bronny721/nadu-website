@@ -9,17 +9,40 @@ import { formatPrice } from "@/lib/utils"
 export default function AdminDashboardPage() {
   const [products, setProducts] = useState([])
   const [orders, setOrders] = useState([])
+  const [totalUsers, setTotalUsers] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const productsRes = await fetch("/api/admin/products")
-        const productsData = await productsRes.json()
-        const ordersRes = await fetch("/api/admin/orders")
-        const ordersData = await ordersRes.json()
-        setProducts(productsData)
-        setOrders(ordersData)
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            console.error("Authentication token not found.");
+            setIsLoading(false);
+            return;
+        }
+
+        const authHeaders = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        };
+
+        const productsRes = await fetch("/api/admin/products", { headers: authHeaders });
+        if (!productsRes.ok) throw new Error(`HTTP error! status: ${productsRes.status} from /api/admin/products`);
+        const productsData = await productsRes.json();
+        setProducts(productsData);
+
+        const ordersRes = await fetch("/api/admin/orders", { headers: authHeaders });
+        if (!ordersRes.ok) throw new Error(`HTTP error! status: ${ordersRes.status} from /api/admin/orders`);
+        const ordersData = await ordersRes.json();
+        setOrders(ordersData);
+
+        const usersRes = await fetch("/api/admin/users", { headers: authHeaders });
+        if (!usersRes.ok) throw new Error(`HTTP error! status: ${usersRes.status} from /api/admin/users`);
+        const usersData = await usersRes.json();
+        setTotalUsers(usersData.length);
+
       } catch (error) {
         console.error("Error fetching dashboard data:", error)
       } finally {
@@ -34,7 +57,6 @@ export default function AdminDashboardPage() {
   const totalRevenue = orders.reduce((sum, order: any) => sum + order.total, 0)
   const pendingOrders = orders.filter((order: any) => order.status === "處理中").length
   const totalProducts = products.length
-  const totalCustomers = [...new Set(orders.map((order: any) => order.customer?.id))].length
 
   if (isLoading) {
     return (
@@ -85,12 +107,12 @@ export default function AdminDashboardPage() {
         </Card>
         <Card className="shadow-lg rounded-2xl border border-gray-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-base font-semibold">客戶總數</CardTitle>
+            <CardTitle className="text-base font-semibold">使用者總數</CardTitle>
             <Users className="h-6 w-6 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-extrabold text-purple-700">{totalCustomers}</div>
-            <p className="text-xs text-muted-foreground">已購買的客戶數量</p>
+            <div className="text-3xl font-extrabold text-purple-700">{totalUsers}</div>
+            <p className="text-xs text-muted-foreground">所有註冊用戶數量</p>
           </CardContent>
         </Card>
       </div>

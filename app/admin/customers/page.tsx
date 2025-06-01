@@ -22,8 +22,30 @@ export default function AdminCustomersPage() {
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
-        const data = await getCustomers()
-        setCustomers(data)
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            console.error("[AdminCustomersPage] Authentication token not found.");
+            setIsLoading(false);
+            toast({
+              title: "錯誤",
+              description: "找不到驗證 Token，無法載入客戶資料",
+              variant: "destructive",
+            });
+            return;
+        }
+
+        const authHeaders = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        };
+
+        const customersRes = await fetch("/api/admin/users", { headers: authHeaders });
+        if (!customersRes.ok) throw new Error(`HTTP error! status: ${customersRes.status} from /api/admin/users`);
+        const customersData = await customersRes.json();
+        console.log("[AdminCustomersPage] API 返回的客戶原始數據:", customersData);
+        setCustomers(customersData);
+        console.log("[AdminCustomersPage] 設置到狀態後的客戶數據:", customers);
       } catch (error) {
         console.error("Error fetching customers:", error)
         toast({
@@ -44,6 +66,8 @@ export default function AdminCustomersPage() {
       customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       customer.email.toLowerCase().includes(searchQuery.toLowerCase()),
   )
+
+  console.log("[AdminCustomersPage] 過濾後的客戶數據:", filteredCustomers);
 
   if (isLoading) {
     return (

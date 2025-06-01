@@ -64,19 +64,91 @@ export default function CheckoutPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    // 獲取表單數據
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    const shippingInfo: Record<string, any> = {};
+    formData.forEach((value, key) => {
+        shippingInfo[key] = value;
+    });
 
-    clearCart()
-    setIsSubmitting(false)
+    // 構建訂單數據
+    const orderData = {
+        items: items.map(item => ({ // 確保發送的數據符合後端 API 預期的格式
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image,
+            variant: item.variant,
+            slug: item.slug, // 確保包含 slug
+        })),
+        total: total,
+        shippingInfo: shippingInfo,
+    };
 
-    toast({
-      title: "訂單已提交",
-      description: "您的訂單已成功提交，感謝您的購買！",
-    })
+    // 從 Local Storage 獲取 Token
+    const token = localStorage.getItem('token');
 
-    // Redirect to confirmation page
-    window.location.href = "/checkout/confirmation"
+    if (!token) {
+        toast({
+            title: "認證錯誤",
+            description: "無法獲取使用者認證信息，請重新登入",
+            variant: "destructive"
+        });
+        setIsSubmitting(false);
+        return;
+    }
+
+    try {
+      // 呼叫後端 API 創建訂單
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // 在 Header 中帶上 Token
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('訂單創建成功:', result);
+
+        // 清空購物車
+        clearCart();
+
+        // 顯示成功訊息
+        toast({
+          title: "訂單已提交",
+          description: "您的訂單已成功提交，感謝您的購買！",
+        });
+
+        // 重定向到確認頁面
+        router.push('/checkout/confirmation');
+
+      } else {
+        // 處理 API 錯誤
+        const errorData = await response.json();
+        console.error('訂單創建失敗:', response.status, errorData);
+        toast({
+          title: "訂單提交失敗",
+          description: errorData.error || '發生未知錯誤，請稍後再試。',
+          variant: "destructive"
+        });
+      }
+
+    } catch (error) {
+      // 處理網路或其他錯誤
+      console.error('呼叫訂單 API 時發生錯誤:', error);
+      toast({
+        title: "發生錯誤",
+        description: '無法提交訂單，請檢查您的網絡或稍後再試。',
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -98,35 +170,35 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">名字</Label>
-                    <Input id="firstName" defaultValue={user?.name?.split(" ")[0] || ""} required />
+                    <Input id="firstName" name="firstName" defaultValue={user?.name?.split(" ")[0] || ""} required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">姓氏</Label>
-                    <Input id="lastName" defaultValue={user?.name?.split(" ")[1] || ""} required />
+                    <Input id="lastName" name="lastName" defaultValue={user?.name?.split(" ")[1] || ""} required />
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="email">電子郵件</Label>
-                    <Input id="email" type="email" defaultValue={user?.email || ""} required />
+                    <Input id="email" name="email" type="email" defaultValue={user?.email || ""} required />
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="phone">電話號碼</Label>
-                    <Input id="phone" type="tel" required />
+                    <Input id="phone" name="phone" type="tel" required />
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="address">地址</Label>
-                    <Input id="address" required />
+                    <Input id="address" name="address" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="city">城市</Label>
-                    <Input id="city" required />
+                    <Input id="city" name="city" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="postalCode">郵遞區號</Label>
-                    <Input id="postalCode" required />
+                    <Input id="postalCode" name="postalCode" required />
                   </div>
                   <div className="space-y-2 md:col-span-2">
                     <Label htmlFor="country">國家/地區</Label>
-                    <Input id="country" defaultValue="台灣" required />
+                    <Input id="country" name="country" defaultValue="台灣" required />
                   </div>
                 </div>
               </div>
